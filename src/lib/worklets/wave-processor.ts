@@ -1,6 +1,5 @@
 import { waveforms } from '../waveforms'
 
-declare const sampleRate: number
 declare abstract class AudioWorkletProcessor {
   readonly port: MessagePort
   process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean
@@ -35,7 +34,7 @@ class WaveProcessor extends AudioWorkletProcessor {
     const frequency = parameters.frequency[0]
     const phaseOffset = parameters.phase[0]
     const a4Hz = 440
-    const increment = (2 * Math.PI * frequency * a4Hz) / sampleRate
+    const increment = (2 * Math.PI * frequency * a4Hz) / 44100
 
     for (let i = 0; i < output.length; i++) {
       output[i] = amplitude * this.waveformFn(this.phase + phaseOffset, this.options)

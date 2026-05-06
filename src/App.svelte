@@ -2,7 +2,8 @@
   import * as fp from 'function-plot'
   import { AudioPlayer } from './lib/audio'
   import { hzToNoteName } from './lib/music'
-  import { waveforms, sampleSegments, type WaveParams } from './lib/waveforms'
+  import { waveforms, type WaveParams } from './lib/waveforms'
+  import { sampleSegments } from './lib/graph'
   const functionPlot = (fp as any).default?.default ?? (fp as any).default ?? fp
 
   const player = new AudioPlayer()
@@ -35,8 +36,6 @@
       return
     }
     await player.start()
-    player.setWaveform(selectedWaveform)
-    player.tune(waveParams)
     playing = true
   }
 

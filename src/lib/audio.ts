@@ -2,6 +2,7 @@ import processorUrl from './worklets/wave-processor.ts?worker&url'
 import { waveforms, type WaveParams } from './waveforms'
 
 export class AudioPlayer {
+  private static readonly sampleRate = 44100
   private audioCtx: AudioContext | null = null
   private node: AudioWorkletNode | null = null
   private waveformKey = 'sin'
@@ -9,10 +10,12 @@ export class AudioPlayer {
 
   async start(): Promise<void> {
     if (this.audioCtx) return
-    this.audioCtx = new AudioContext()
+    this.audioCtx = new AudioContext({ sampleRate: AudioPlayer.sampleRate })
     await this.audioCtx.audioWorklet.addModule(processorUrl)
     this.node = new AudioWorkletNode(this.audioCtx, 'wave-processor')
     this.node.connect(this.audioCtx.destination)
+    this.setWaveform(this.waveformKey)
+    this.tune(this.params)
   }
 
   stop(): void {
@@ -48,12 +51,11 @@ export class AudioPlayer {
   }
 
   private renderSamples(durationSec: number): Float32Array {
-    const sampleRate = 44100
-    const sampleCount = sampleRate * durationSec
+    const sampleCount = AudioPlayer.sampleRate * durationSec
     const { amplitude, frequency, phase } = this.params
     const waveform = waveforms[this.waveformKey]
     const a4Hz = 440
-    const increment = (2 * Math.PI * frequency * a4Hz) / sampleRate
+    const increment = (2 * Math.PI * frequency * a4Hz) / AudioPlayer.sampleRate
 
     const samples = new Float32Array(sampleCount)
     let angle = 0
@@ -65,7 +67,6 @@ export class AudioPlayer {
   }
 
   private encodePcmToWav(samples: Float32Array): Blob {
-    const sampleRate = 44100
     const wavHeaderSize = 44
     const buffer = new ArrayBuffer(wavHeaderSize + samples.length * 2)
     const view = new DataView(buffer)
@@ -78,8 +79,8 @@ export class AudioPlayer {
     view.setUint32(16, 16, true)
     view.setUint16(20, 1, true)
     view.setUint16(22, 1, true)
-    view.setUint32(24, sampleRate, true)
-    view.setUint32(28, sampleRate * 2, true)
+    view.setUint32(24, AudioPlayer.sampleRate, true)
+    view.setUint32(28, AudioPlayer.sampleRate * 2, true)
     view.setUint16(32, 2, true)
     view.setUint16(34, 16, true)
     writeStr(36, 'data')

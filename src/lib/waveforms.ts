@@ -13,7 +13,7 @@ export type WaveParams = {
   options?: Record<string, number>
 }
 
-type Waveform = {
+export type Waveform = {
   name: string
   fn: (x: number, options?: Record<string, number>) => number
   expr: string
@@ -161,33 +161,4 @@ export const waveforms: Record<string, Waveform> = {
     tonal: false,
     defaultOptions: { terms: 1 },
   },
-}
-
-export function sampleSegments(
-  waveform: Waveform,
-  params: WaveParams,
-  xMin = -10,
-  xMax = 10,
-  steps = 2000, // 一般的なディスプレイ幅は1920px程度。グラフ描画領域を800px想定すると1px1点以上になり十分滑らか
-): [number, number][][] {
-  const { amplitude, frequency, phase, options } = params
-  const step = (xMax - xMin) / steps
-  const discontinuityThreshold = 5 // yAxisの描画範囲[-2,2]を大きく超えた符号反転を漸近線とみなす
-  const segments: [number, number][][] = [[]]
-  let prevY = NaN
-  for (let i = 0; i <= steps; i++) {
-    const x = xMin + i * step
-    const y = amplitude * waveform.fn(frequency * x + phase, options)
-    if (!isFinite(y)) {
-      segments.push([])
-      prevY = NaN
-      continue
-    }
-    if ((prevY > discontinuityThreshold && y < -discontinuityThreshold) || (prevY < -discontinuityThreshold && y > discontinuityThreshold)) {
-      segments.push([])
-    }
-    segments[segments.length - 1].push([x, y])
-    prevY = y
-  }
-  return segments.filter(s => s.length > 0)
 }
