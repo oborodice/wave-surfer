@@ -24,13 +24,14 @@ export class AudioPlayer {
 
   setWaveform(key: string): void {
     this.waveformKey = key
-    this.node?.port.postMessage({ fn: key })
+    this.node?.port.postMessage({ fn: key, options: this.params.options })
   }
 
   tune(params: WaveParams): void {
     this.params = params
     if (!this.node) return
-    const { amplitude, frequency, phase } = params
+    const { amplitude, frequency, phase, options } = params
+    this.node.port.postMessage({ options })
     for (const [key, value] of Object.entries({ amplitude, frequency, phase }) as [string, number][]) {
       const param = this.node.parameters.get(key)
       if (param) param.value = value
@@ -57,7 +58,7 @@ export class AudioPlayer {
     const samples = new Float32Array(sampleCount)
     let angle = 0
     for (let i = 0; i < sampleCount; i++) {
-      samples[i] = amplitude * waveform.fn(angle + phase)
+      samples[i] = amplitude * waveform.fn(angle + phase, this.params.options)
       angle += increment
     }
     return samples

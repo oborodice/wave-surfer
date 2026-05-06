@@ -17,7 +17,7 @@
   let terms = $state(defaultParams.terms)
   let container: HTMLDivElement
 
-  let waveParams = $derived<WaveParams>({ amplitude, frequency, phase, options: { terms } })
+  let waveParams = $derived<WaveParams>({ amplitude, frequency, phase, options: waveforms[selectedWaveform].defaultOptions?.terms != null ? { terms } : undefined })
   let displayExpr = $derived(waveforms[selectedWaveform].concreteExpr(waveParams))
   let noteLabel = $derived(waveforms[selectedWaveform].tonal ? `${Math.round(frequency * 440)}Hz / ${hzToNoteName(frequency * 440)}` : '')
 
@@ -80,7 +80,7 @@
     Phase: {(phase >= 0 ? '+' : '') + phase.toFixed(1)}
     <input type="range" min="-6.3" max="6.3" step="0.1" bind:value={phase} />
   </label>
-  {#if selectedWaveform === 'maclaurinSin'}
+  {#if waveforms[selectedWaveform].defaultOptions?.terms != null}
   <label>
     Terms: {terms}
     <input type="range" min="1" max="10" step="1" bind:value={terms} />

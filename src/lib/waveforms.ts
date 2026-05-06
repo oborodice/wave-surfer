@@ -19,6 +19,7 @@ type Waveform = {
   expr: string
   concreteExpr: (params: WaveParams) => string
   tonal: boolean
+  defaultOptions?: Record<string, number>
 }
 
 const buildExpr = ({ amplitude, frequency, phase }: WaveParams, template: (x: string) => string) => {
@@ -158,6 +159,7 @@ export const waveforms: Record<string, Waveform> = {
     expr: 'Σ(n=0 to ∞) (-1)ⁿ x²ⁿ⁺¹/(2n+1)!',
     concreteExpr: (params) => buildExpr(params, x => `Σ [n=0..${params.options!.terms - 1}] (-1)ⁿ (${x})²ⁿ⁺¹/(2n+1)!`),
     tonal: false,
+    defaultOptions: { terms: 1 },
   },
 }
 

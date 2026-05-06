@@ -9,13 +9,15 @@ declare function registerProcessor(name: string, ctor: new () => AudioWorkletPro
 
 class WaveProcessor extends AudioWorkletProcessor {
   private phase = 0
-  private fn: (x: number) => number = Math.sin
+  private waveformFn: (x: number, options?: Record<string, number>) => number = Math.sin
+  private options: Record<string, number> | undefined = undefined
 
   constructor() {
     super()
     this.port.onmessage = (e) => {
       const waveform = waveforms[e.data.fn]
-      if (waveform) this.fn = waveform.fn
+      if (waveform) this.waveformFn = waveform.fn
+      if ('options' in e.data) this.options = e.data.options
     }
   }
 
@@ -36,7 +38,7 @@ class WaveProcessor extends AudioWorkletProcessor {
     const increment = (2 * Math.PI * frequency * a4Hz) / sampleRate
 
     for (let i = 0; i < output.length; i++) {
-      output[i] = amplitude * this.fn(this.phase + phaseOffset)
+      output[i] = amplitude * this.waveformFn(this.phase + phaseOffset, this.options)
       this.phase += increment
     }
 
