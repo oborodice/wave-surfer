@@ -32,7 +32,8 @@ class WaveProcessor extends AudioWorkletProcessor {
     const amplitude = parameters.amplitude[0]
     const frequency = parameters.frequency[0]
     const phaseOffset = parameters.phase[0]
-    const increment = (2 * Math.PI * frequency * 440) / sampleRate
+    const a4Hz = 440
+    const increment = (2 * Math.PI * frequency * a4Hz) / sampleRate
 
     for (let i = 0; i < output.length; i++) {
       output[i] = amplitude * this.fn(this.phase + phaseOffset)

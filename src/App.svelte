@@ -36,7 +36,7 @@
     }
     await player.start()
     player.setWaveform(selectedWaveform)
-    player.tune({ amplitude, frequency, phase })
+    player.tune(waveParams)
     playing = true
   }
 
@@ -52,7 +52,7 @@
   })
 
   $effect(() => {
-    player.tune({ amplitude, frequency, phase })
+    player.tune(waveParams)
   })
 
   $effect(() => {
@@ -86,13 +86,9 @@
     <input type="range" min="1" max="10" step="1" bind:value={terms} />
   </label>
   {/if}
-  <button onclick={resetParams}>Reset</button>
-  <label>
-    Sound:
-    <button onclick={togglePlay}>
-      {playing ? 'Stop' : 'Play'}
-    </button>
-  </label>
+  <button onclick={resetParams}>Reset Params</button>
+  <button onclick={togglePlay}>{playing ? 'Stop Sound' : 'Play Sound'}</button>
+  <button onclick={() => player.exportWav()}>Download WAV</button>
   <div bind:this={container}></div>
 </main>
 
